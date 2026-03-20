@@ -223,4 +223,8 @@ PasswordResetToken — token, userId, expiresAt
 
 ## License
 
-MIT
+MIT<img width="2880" height="1740" alt="image" src="https://github.com/user-attachments/assets/58fc1446-0fa4-48e7-bd53-b97c046d6632" />
+<img width="2880" height="1740" alt="image" src="https://github.com/user-attachments/assets/0ae9f32e-2667-44f6-a99e-f55803b56277" />
+<img width="2880" height="1740" alt="image" src="https://github.com/user-attachments/assets/cb9c7c76-22bc-4b8a-aec4-e4c7410bf3c5" />
+<img width="2880" height="1740" alt="image" src="https://github.com/user-attachments/assets/cc06f538-7b59-418a-9d07-d0c8ed311320" />
+

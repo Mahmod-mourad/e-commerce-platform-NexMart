@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useTranslations } from "@/hooks/use-translations"
@@ -14,7 +14,9 @@ import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
 import type { Order } from "@/types"
 
-export default function OrderDetailsPage({ params }: { params: { id: string } }) {
+export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  // In a client component the promise is unwrapped with use() rather than await.
+  const { id } = use(params)
   const { t } = useTranslations()
   const { user } = useAuth()
   const { toast } = useToast()
@@ -24,7 +26,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
 
   useEffect(() => {
     if (!user) {
-      router.push("/login?redirect=/orders/" + params.id)
+      router.push("/login?redirect=/orders/" + id)
       return
     }
 
@@ -32,42 +34,14 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
       try {
         setLoading(true)
 
-        // In a real app, this would be an API call
-        // For now, we'll just simulate fetching an order
+        const response = await fetch(`/api/orders/${id}`)
 
-        // Sample order
-        const sampleOrder: Order = {
-          id: params.id,
-          userId: user.id,
-          total: 349.98,
-          status: "delivered",
-          paymentMethod: "cash_on_delivery",
-          shippingDetails: {
-            fullName: user.name,
-            email: user.email,
-            phone: "123-456-7890",
-            address: "123 Main St",
-            city: "Anytown",
-            state: "CA",
-            zipCode: "12345",
-            country: "USA",
-          },
-          items: [
-            {
-              productId: "1",
-              quantity: 1,
-              price: 299.99,
-            },
-            {
-              productId: "3",
-              quantity: 1,
-              price: 49.99,
-            },
-          ],
-          createdAt: "2023-06-15T10:30:00Z",
+        if (!response.ok) {
+          throw new Error(response.status === 404 ? "Order not found" : "Failed to load order")
         }
 
-        setOrder(sampleOrder)
+        const data: Order = await response.json()
+        setOrder(data)
       } catch (error) {
         console.error("Error fetching order:", error)
         toast({
@@ -81,7 +55,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
     }
 
     fetchOrder()
-  }, [params.id, user, router, toast, t])
+  }, [id, user, router, toast, t])
 
   const getStatusBadge = (status: string) => {
     switch (status) {

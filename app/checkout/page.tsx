@@ -65,10 +65,11 @@ export default function CheckoutPage() {
         title: t("checkout.success"),
         description: t("checkout.successMessage"),
       })
-    } catch {
+    } catch (error) {
+      console.error("checkout failed:", error)
       toast({
         title: t("checkout.error"),
-        description: t("checkout.errorMessage"),
+        description: error instanceof Error ? error.message : t("checkout.errorMessage"),
         variant: "destructive",
       })
     } finally {

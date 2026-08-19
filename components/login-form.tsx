@@ -37,7 +37,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
 
     try {
       await onSubmit(email, password)
-    } catch (error) {
+    } catch {
       toast({
         title: t("auth.loginFailed"),
         description: t("auth.invalidCredentials"),

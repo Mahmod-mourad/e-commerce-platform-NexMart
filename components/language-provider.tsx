@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { createContext, useEffect, useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { translations } from "@/lib/translations"
 
 type Locale = "en" | "ar"
@@ -11,7 +11,7 @@ type Locale = "en" | "ar"
 interface LanguageContextType {
   locale: Locale
   setLocale: (locale: Locale) => void
-  t: (key: string, params?: Record<string, any>) => string
+  t: (key: string, params?: Record<string, string | number>) => string
 }
 
 export const LanguageContext = createContext<LanguageContextType>({
@@ -23,7 +23,6 @@ export const LanguageContext = createContext<LanguageContextType>({
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("en")
   const router = useRouter()
-  const pathname = usePathname()
 
   useEffect(() => {
     const savedLocale = localStorage.getItem("locale") as Locale
@@ -42,7 +41,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     router.refresh()
   }
 
-  const t = (key: string, params?: Record<string, any>): string => {
+  const t = (key: string, params?: Record<string, string | number>): string => {
     const keys = key.split(".")
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let value: any = translations[locale]

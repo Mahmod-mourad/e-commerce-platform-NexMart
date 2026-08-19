@@ -45,7 +45,9 @@ describe("GET /api/products", () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data.products).toEqual(mockProducts)
+    // Dates come back through JSON as ISO strings, so the fixture is serialised
+    // the same way before comparing.
+    expect(data.products).toEqual(JSON.parse(JSON.stringify(mockProducts)))
     expect(data.pagination).toBeDefined()
     expect(data.pagination.total).toBe(1)
     expect(data.pagination.pages).toBe(1)

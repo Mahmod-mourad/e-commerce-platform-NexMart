@@ -110,9 +110,10 @@ export function ProductForm({ product }: { product?: Product }) {
         })
       }
     } catch (error) {
+      console.error("save product failed:", error)
       toast({
         title: t("admin.products.error"),
-        description: t("admin.products.errorSaving"),
+        description: error instanceof Error ? error.message : t("admin.products.errorSaving"),
         variant: "destructive",
       })
     } finally {

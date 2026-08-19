@@ -31,10 +31,16 @@ export function Newsletter() {
     setIsSubmitting(true)
 
     try {
-      // In a real app, this would be an API call
-      // For now, we'll just simulate subscribing
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
 
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      if (!response.ok) {
+        const { error } = await response.json()
+        throw new Error(error || t("newsletter.errorSubscribing"))
+      }
 
       toast({
         title: t("newsletter.success"),
@@ -45,7 +51,7 @@ export function Newsletter() {
     } catch (error) {
       toast({
         title: t("newsletter.error"),
-        description: t("newsletter.errorSubscribing"),
+        description: error instanceof Error ? error.message : t("newsletter.errorSubscribing"),
         variant: "destructive",
       })
     } finally {

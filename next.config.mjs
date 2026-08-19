@@ -1,14 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Both of these were true, so `next build` reported success no matter how many
+  // type or lint errors the project had. A build that cannot fail is not a check.
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   images: {
-    domains: ['localhost', 'placeholder.com'],
+    // `domains` is deprecated in favour of remotePatterns.
+    remotePatterns: [
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+    ],
     unoptimized: true,
   },
 }

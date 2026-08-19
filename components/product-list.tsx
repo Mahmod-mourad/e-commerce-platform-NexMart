@@ -52,6 +52,8 @@ export function ProductList() {
 
   useEffect(() => {
     fetchProducts()
+    // fetchProducts only closes over stable values, so running once is correct.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleDelete = async (id: string) => {
@@ -71,9 +73,10 @@ export function ProductList() {
         description: t("admin.products.productDeleted"),
       })
     } catch (error) {
+      console.error("delete product failed:", error)
       toast({
         title: t("admin.products.error"),
-        description: t("admin.products.errorDeleting"),
+        description: error instanceof Error ? error.message : t("admin.products.errorDeleting"),
         variant: "destructive",
       })
     }
@@ -100,34 +103,10 @@ export function ProductList() {
     )
   }
 
-  // Fallback to sample products if API returns empty
-  const displayProducts =
-    products.length > 0
-      ? products
-      : [
-          {
-            id: "1",
-            name: "Wireless Noise-Cancelling Headphones",
-            description: "Premium wireless headphones with active noise cancellation",
-            price: 299.99,
-            images: ["/placeholder.svg?height=300&width=300"],
-            category: "electronics",
-            rating: 4.5,
-            stock: 15,
-            featured: true,
-          },
-          {
-            id: "2",
-            name: "Smart Fitness Watch",
-            description: "Track your fitness goals with this advanced smartwatch",
-            price: 199.99,
-            images: ["/placeholder.svg?height=300&width=300"],
-            category: "electronics",
-            rating: 4.3,
-            stock: 20,
-            featured: true,
-          },
-        ]
+  // The catalogue is whatever the API returns, including nothing. The invented
+  // rows this used to fall back to were editable and deletable in the admin table,
+  // against ids no database row had.
+  const displayProducts = products
 
   return (
     <>

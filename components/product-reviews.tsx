@@ -46,67 +46,32 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
+    let cancelled = false
+
     const fetchReviews = async () => {
       try {
         setLoading(true)
-        // In a real app, this would be an API call
-        // For now, we'll just simulate fetching reviews
+        const response = await fetch(`/api/reviews?productId=${encodeURIComponent(productId)}`)
 
-        // Sample reviews
-        const sampleReviews = [
-          {
-            id: "review-1",
-            userId: "user-1",
-            productId,
-            rating: 5,
-            comment:
-              "This product exceeded my expectations! The quality is outstanding and it works perfectly. I would definitely recommend it to anyone looking for a reliable solution.",
-            createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-            user: {
-              id: "user-1",
-              name: "Sarah Johnson",
-              image: "/placeholder-user.jpg",
-            },
-          },
-          {
-            id: "review-2",
-            userId: "user-2",
-            productId,
-            rating: 4,
-            comment:
-              "Great product overall. It does what it's supposed to do and the build quality is good. The only reason I'm not giving it 5 stars is because the setup was a bit complicated.",
-            createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-            user: {
-              id: "user-2",
-              name: "Michael Brown",
-              image: "/placeholder-user.jpg",
-            },
-          },
-          {
-            id: "review-3",
-            userId: "user-3",
-            productId,
-            rating: 3,
-            comment:
-              "It's an okay product. It does the job but there's nothing special about it. The price is reasonable though.",
-            createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-            user: {
-              id: "user-3",
-              name: "Emily Davis",
-              image: "/placeholder-user.jpg",
-            },
-          },
-        ]
+        if (!response.ok) {
+          throw new Error("Failed to load reviews")
+        }
 
-        setReviews(sampleReviews)
+        const data: Review[] = await response.json()
+        if (!cancelled) setReviews(data)
       } catch (error) {
         console.error("Error fetching reviews:", error)
+        if (!cancelled) setReviews([])
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
 
     fetchReviews()
+
+    return () => {
+      cancelled = true
+    }
   }, [productId])
 
   const handleRatingChange = (rating: number) => {
@@ -137,24 +102,25 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
     setIsSubmitting(true)
 
     try {
-      // In a real app, this would be an API call
-      // For now, we'll just simulate adding a review
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId,
+          rating: userReview.rating,
+          comment: userReview.comment,
+        }),
+      })
 
-      const newReview = {
-        id: `review-${Date.now()}`,
-        userId: user.id,
-        productId,
-        rating: userReview.rating,
-        comment: userReview.comment,
-        createdAt: new Date().toISOString(),
-        user: {
-          id: user.id,
-          name: user.name,
-          image: user.image,
-        },
+      if (!response.ok) {
+        // The API rejects a review from someone who has not bought the product,
+        // and a second review from the same person.
+        const { error } = await response.json()
+        throw new Error(error || t("reviews.errorSubmitting"))
       }
 
-      setReviews((prev) => [newReview, ...prev])
+      const created: Review = await response.json()
+      setReviews((prev) => [created, ...prev])
 
       setUserReview({
         rating: 0,
@@ -168,7 +134,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
     } catch (error) {
       toast({
         title: t("reviews.error"),
-        description: t("reviews.errorSubmitting"),
+        description: error instanceof Error ? error.message : t("reviews.errorSubmitting"),
         variant: "destructive",
       })
     } finally {

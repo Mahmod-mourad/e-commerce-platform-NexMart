@@ -19,7 +19,7 @@ interface ProfileFormProps {
 export function ProfileForm({ user }: ProfileFormProps) {
   const { t } = useTranslations()
   const { toast } = useToast()
-  const { logout } = useAuth()
+  const { refreshUser } = useAuth()
 
   const [formData, setFormData] = useState({
     name: user.name,
@@ -41,7 +41,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
     setIsSubmitting(true)
 
     try {
-      // Password validation
       if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
         toast({
           title: t("profile.error"),
@@ -51,50 +50,46 @@ export function ProfileForm({ user }: ProfileFormProps) {
         return
       }
 
-      // In a real app, this would be an API call
-      // For now, we'll just simulate updating the user in localStorage
-      const users = JSON.parse(localStorage.getItem("users") || "[]")
-      const userIndex = users.findIndex((u: any) => u.id === user.id)
-
-      if (userIndex === -1) {
-        throw new Error("User not found")
-      }
-
-      // Check current password
-      if (formData.currentPassword && users[userIndex].password !== formData.currentPassword) {
-        toast({
-          title: t("profile.error"),
-          description: t("profile.incorrectPassword"),
-          variant: "destructive",
+      // Name first. The email address is the login identifier and changing it needs
+      // a verification flow, so the field is read-only rather than silently ignored.
+      if (formData.name !== user.name) {
+        const response = await fetch("/api/auth/me", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: formData.name }),
         })
-        setIsSubmitting(false)
-        return
+
+        if (!response.ok) {
+          const { error } = await response.json()
+          throw new Error(error || t("profile.errorUpdating"))
+        }
+
+        await refreshUser()
       }
 
-      // Update user data
-      users[userIndex].name = formData.name
-      users[userIndex].email = formData.email
-
+      // The password is compared and hashed on the server. This used to happen in
+      // the browser against plain text held in localStorage.
       if (formData.newPassword) {
-        users[userIndex].password = formData.newPassword
-      }
+        const response = await fetch("/api/auth/change-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            currentPassword: formData.currentPassword,
+            newPassword: formData.newPassword,
+          }),
+        })
 
-      localStorage.setItem("users", JSON.stringify(users))
-
-      // Update current user in localStorage
-      const updatedUser = {
-        ...user,
-        name: formData.name,
-        email: formData.email,
+        if (!response.ok) {
+          const { error } = await response.json()
+          throw new Error(error || t("profile.incorrectPassword"))
+        }
       }
-      localStorage.setItem("user", JSON.stringify(updatedUser))
 
       toast({
         title: t("profile.success"),
         description: t("profile.profileUpdated"),
       })
 
-      // Clear password fields
       setFormData((prev) => ({
         ...prev,
         currentPassword: "",
@@ -102,20 +97,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
         confirmPassword: "",
       }))
 
-      // If email was changed, log the user out
-      if (formData.email !== user.email) {
-        toast({
-          title: t("profile.emailChanged"),
-          description: t("profile.pleaseLoginAgain"),
-        })
-        setTimeout(() => {
-          logout()
-        }, 2000)
-      }
     } catch (error) {
       toast({
         title: t("profile.error"),
-        description: t("profile.errorUpdating"),
+        description: error instanceof Error ? error.message : t("profile.errorUpdating"),
         variant: "destructive",
       })
     } finally {

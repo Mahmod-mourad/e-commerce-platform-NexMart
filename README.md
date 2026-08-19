@@ -92,66 +92,52 @@ A fully-featured e-commerce web application inspired by Amazon, built with moder
 
 ## Getting Started
 
-### Prerequisites
-- Node.js 20+
-- PostgreSQL 14+
-- Stripe account (for payments)
-
-### 1. Clone the repo
+### The quick way
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nexmart.git
-cd nexmart
-npm install
+git clone https://github.com/Mahmod-mourad/e-commerce-platform-NexMart.git
+cd e-commerce-platform-NexMart
+docker compose up --build
 ```
 
-### 2. Set up environment variables
+That brings up PostgreSQL, applies the migrations, seeds a catalogue, and serves
+the app on http://localhost:3000. Nothing else to configure — payments run
+against Stripe test placeholders until you supply real keys.
+
+Seeded accounts:
+
+| Role | Email | Password |
+|---|---|---|
+| admin | `admin@nexmart.local` | `Password123!` |
+| customer | `customer@nexmart.local` | `Password123!` |
+
+### Running it directly
+
+**Prerequisites:** Node.js 20+, PostgreSQL 14+, and a Stripe account if you want
+real payments.
 
 ```bash
-cp .env.example .env
-```
-
-Fill in `.env`:
-
-```env
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/nexmart"
-JWT_SECRET="your-random-secret-min-32-chars"
-
-# Email (Gmail example)
-EMAIL_SERVER=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_SECURE=false
-EMAIL_USER=your@gmail.com
-EMAIL_PASSWORD=your-app-password
-EMAIL_FROM=noreply@nexmart.com
-ADMIN_EMAIL=admin@nexmart.com
-
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# Stripe (get from dashboard.stripe.com)
-STRIPE_SECRET_KEY=sk_test_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
-```
-
-### 3. Set up the database
-
-```bash
-npx prisma migrate dev --name init
-```
-
-### 4. Seed sample products (optional)
-
-```bash
-npx tsx prisma/seed.ts
-```
-
-### 5. Start the development server
-
-```bash
+npm ci
+cp .env.example .env      # then fill in DATABASE_URL and JWT_SECRET
+npx prisma migrate deploy
+npm run seed
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Every variable is documented inline in `.env.example`.
+
+### Stripe webhooks
+
+Orders stay `pending` until Stripe confirms the payment, and Stripe confirms it
+by calling `/api/webhooks/stripe` — not the browser. For local development:
+
+```bash
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+```
+
+Copy the `whsec_...` it prints into `STRIPE_WEBHOOK_SECRET`. Without it the
+webhook rejects every request, which is the correct behaviour: an endpoint that
+marks orders paid must not accept unsigned calls.
 
 ---
 
@@ -189,6 +175,8 @@ PasswordResetToken — token, userId, expiresAt
 | POST | `/api/auth/login` | Public |
 | POST | `/api/auth/logout` | Public |
 | GET | `/api/auth/me` | Authenticated |
+| PATCH | `/api/auth/me` | Authenticated |
+| POST | `/api/auth/change-password` | Authenticated |
 | POST | `/api/auth/forgot-password` | Public |
 | POST | `/api/auth/reset-password` | Public |
 
@@ -204,8 +192,20 @@ PasswordResetToken — token, userId, expiresAt
 ### Orders
 | Method | Endpoint | Access |
 |--------|----------|--------|
-| GET | `/api/orders` | Authenticated |
+| GET | `/api/orders` | Authenticated (own orders only) |
 | POST | `/api/orders` | Authenticated |
+| GET | `/api/orders/:id` | Owner or admin |
+
+### Reviews
+| Method | Endpoint | Access |
+|--------|----------|--------|
+| GET | `/api/reviews?productId=` | Public |
+| POST | `/api/reviews` | Verified purchasers only |
+
+### Newsletter
+| Method | Endpoint | Access |
+|--------|----------|--------|
+| POST | `/api/newsletter` | Public |
 
 ### Wishlist
 | Method | Endpoint | Access |
@@ -217,7 +217,8 @@ PasswordResetToken — token, userId, expiresAt
 ### Payment
 | Method | Endpoint | Access |
 |--------|----------|--------|
-| POST | `/api/payment/create-intent` | Authenticated |
+| POST | `/api/payment/create-intent` | Order owner |
+| POST | `/api/webhooks/stripe` | Stripe (signature-verified) |
 
 ---
 

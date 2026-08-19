@@ -38,17 +38,39 @@ A fully-featured e-commerce web application inspired by Amazon, built with moder
 - Cart (client-side with persistence)
 - Wishlist (synced with database)
 - Checkout form with shipping details
-- Stripe payment integration
+- Product reviews, one per customer per product
+- Newsletter sign-up
 - Order confirmation email after successful purchase
+
+### Orders and payment
+- Stock is checked and reserved inside the same transaction that creates the
+  order, using a conditional decrement, so two customers racing for the last
+  unit cannot both succeed
+- Stripe payment intents are created against an existing order and carry its id
+- A signed Stripe webhook settles the order. The browser never decides that a
+  payment succeeded
+- The webhook is idempotent: Stripe delivers at least once, and a repeat
+  delivery is a no-op rather than a second state change
+- A failed payment releases the stock the order was holding
 
 ### Security
 - Server-side price calculation — client prices are never trusted
-- Server-side payment amount calculation — Stripe amount computed from DB
-- Mass-assignment protection on product create/update
+- Stripe amounts read from the stored order, not from the request
+- Webhook signature verification; without `STRIPE_WEBHOOK_SECRET` the endpoint
+  refuses to process anything
+- Mass-assignment protection on product create/update, and on profile updates —
+  `role` is never read from a request body
+- Changing an email or password requires the current password
 - JWT verified from `lib/auth.ts` (single source of truth, no duplication)
 - Middleware protects all sensitive routes (`/api/orders`, `/api/wishlist`, admin endpoints)
-- Pagination DoS protection (limit capped at 100)
-- Users can only access their own orders (IDOR protection)
+- Every request body is validated in `lib/validation.ts`; a malformed body
+  answers 400 rather than throwing into a 500
+- Quantities must be whole numbers of at least 1, so a negative quantity cannot
+  reduce an order total
+- Pagination capped at 100 per page
+- Users can only access their own orders and wishlist
+
+See [SECURITY.md](SECURITY.md) for the reasoning behind each of these.
 
 ### Admin
 - Admin dashboard to create, update, and delete products
@@ -69,17 +91,23 @@ A fully-featured e-commerce web application inspired by Amazon, built with moder
 │   ├── wishlist/                 # Wishlist
 │   ├── profile/                  # User profile
 │   ├── admin/products/           # Admin product management
-│   ├── login/ | forgot-password/ | reset-password/
+│   ├── login/ | register/ | forgot-password/ | reset-password/
 │   └── api/
 │       ├── auth/                 # login, register, logout, me, forgot/reset-password
 │       ├── products/             # CRUD products
-│       ├── orders/               # Create & fetch orders
+│       ├── orders/               # Create & fetch orders, single order detail
 │       ├── wishlist/             # Add, fetch, remove wishlist items
-│       └── payment/             # Stripe payment intent
+│       ├── reviews/              # Product reviews
+│       ├── newsletter/           # Newsletter sign-up
+│       ├── payment/              # Stripe payment intent
+│       └── webhooks/stripe/      # Payment confirmation from Stripe
 ├── components/                   # Reusable UI components
 ├── lib/
 │   ├── auth.ts                   # JWT sign, verify, cookie helpers
+│   ├── validation.ts             # Request body parsing and field validation
+│   ├── stripe.ts                 # Stripe client (lazy, so tests need no key)
 │   ├── email.ts                  # Nodemailer email sender
+│   ├── translations.ts           # Arabic / English strings
 │   └── prisma.ts                 # Prisma client singleton
 ├── prisma/
 │   ├── schema.prisma             # DB models
@@ -148,7 +176,28 @@ npm run dev        # Start development server
 npm run build      # Production build
 npm run start      # Start production server
 npm test           # Run tests
+npm run test:watch # Run tests in watch mode
+npm run typecheck  # tsc --noEmit
+npm run lint       # ESLint
+npm run seed       # Seed the database
+npm run db:migrate # Apply migrations
 ```
+
+---
+
+## Tests and CI
+
+```bash
+npm test
+```
+
+54 tests across `__tests__/api` and `__tests__/lib`, covering order creation and
+the stock race, the Stripe webhook (signature rejection, idempotent replay, stock
+release on failure), auth, products and the validation helpers.
+
+`.github/workflows/ci.yml` runs on every push to `main` and every pull request. It
+starts PostgreSQL, applies migrations, seeds, then runs typecheck, lint and tests.
+A red pipeline blocks the merge.
 
 ---
 
@@ -156,12 +205,13 @@ npm test           # Run tests
 
 ```
 User         — id, name, email, password, role, image
-Product      — id, name, description, price, images[], category, brand, stock, rating, featured
+Product      — id, name, description, price, images[], category, brand, model, stock, rating, featured
 Order        — id, userId, total, status, paymentMethod, shippingDetails (JSON)
 OrderItem    — id, orderId, productId, quantity, price
 Wishlist     — userId + productId (unique pair)
 Review       — id, rating, comment, userId, productId
-PasswordResetToken — token, userId, expiresAt
+PasswordResetToken   — token, userId, expiresAt
+NewsletterSubscriber — email (unique), subscribedAt
 ```
 
 ---
@@ -222,10 +272,15 @@ PasswordResetToken — token, userId, expiresAt
 
 ---
 
+## Screenshots
+
+<img width="2880" height="1740" alt="Home page" src="https://github.com/user-attachments/assets/58fc1446-0fa4-48e7-bd53-b97c046d6632" />
+<img width="2880" height="1740" alt="Product listing" src="https://github.com/user-attachments/assets/0ae9f32e-2667-44f6-a99e-f55803b56277" />
+<img width="2880" height="1740" alt="Product detail" src="https://github.com/user-attachments/assets/cb9c7c76-22bc-4b8a-aec4-e4c7410bf3c5" />
+<img width="2880" height="1740" alt="Cart" src="https://github.com/user-attachments/assets/cc06f538-7b59-418a-9d07-d0c8ed311320" />
+
+---
+
 ## License
 
-MIT<img width="2880" height="1740" alt="image" src="https://github.com/user-attachments/assets/58fc1446-0fa4-48e7-bd53-b97c046d6632" />
-<img width="2880" height="1740" alt="image" src="https://github.com/user-attachments/assets/0ae9f32e-2667-44f6-a99e-f55803b56277" />
-<img width="2880" height="1740" alt="image" src="https://github.com/user-attachments/assets/cb9c7c76-22bc-4b8a-aec4-e4c7410bf3c5" />
-<img width="2880" height="1740" alt="image" src="https://github.com/user-attachments/assets/cc06f538-7b59-418a-9d07-d0c8ed311320" />
-
+MIT — see [LICENSE](LICENSE).

@@ -12,6 +12,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>
   register: (name: string, email: string, password: string) => Promise<boolean>
   logout: () => void
+  /** Re-reads the session from the server after the profile changes. */
+  refreshUser: () => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -19,6 +21,7 @@ export const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   login: async () => false,
   register: async () => false,
+  refreshUser: async () => {},
   logout: () => {},
 })
 
@@ -126,8 +129,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
+  const refreshUser = async () => {
+    try {
+      const response = await fetch("/api/auth/me")
+      if (!response.ok) return
+
+      const data: User = await response.json()
+      setUser(data)
+      localStorage.setItem("user", JSON.stringify(data))
+    } catch {
+      // A failed refresh leaves the existing session alone; the next page load
+      // will re-verify it anyway.
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

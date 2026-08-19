@@ -27,6 +27,7 @@ export function FeaturedProducts() {
         setProducts(data.products)
       } catch (error) {
         console.error("Error fetching featured products:", error)
+        setProducts([])
       } finally {
         setLoading(false)
       }
@@ -73,55 +74,10 @@ export function FeaturedProducts() {
   }
 
   // Fallback to sample products if API returns empty
-  const displayProducts =
-    products.length > 0
-      ? products
-      : [
-          {
-            id: "1",
-            name: "Wireless Noise-Cancelling Headphones",
-            description: "Premium wireless headphones with active noise cancellation",
-            price: 299.99,
-            images: ["/placeholder.svg?height=300&width=300"],
-            category: "electronics",
-            rating: 4.5,
-            stock: 15,
-            featured: true,
-          },
-          {
-            id: "2",
-            name: "Smart Fitness Watch",
-            description: "Track your fitness goals with this advanced smartwatch",
-            price: 199.99,
-            images: ["/placeholder.svg?height=300&width=300"],
-            category: "electronics",
-            rating: 4.3,
-            stock: 20,
-            featured: true,
-          },
-          {
-            id: "3",
-            name: "Organic Cotton T-Shirt",
-            description: "Comfortable and eco-friendly cotton t-shirt",
-            price: 29.99,
-            images: ["/placeholder.svg?height=300&width=300"],
-            category: "fashion",
-            rating: 4.0,
-            stock: 50,
-            featured: true,
-          },
-          {
-            id: "4",
-            name: "Professional Blender",
-            description: "High-performance blender for smoothies and food preparation",
-            price: 149.99,
-            images: ["/placeholder.svg?height=300&width=300"],
-            category: "home",
-            rating: 4.7,
-            stock: 10,
-            featured: true,
-          },
-        ]
+  // The API is the only source. This used to fall back to four invented products
+  // with made-up prices whenever the request returned nothing, so an empty or
+  // unreachable catalogue looked like a stocked one.
+  const displayProducts = products
 
   return (
     <div className="py-8">

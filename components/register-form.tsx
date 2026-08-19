@@ -47,7 +47,7 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
 
     try {
       await onSubmit(name, email, password)
-    } catch (error) {
+    } catch {
       toast({
         title: t("auth.registrationFailed"),
         description: t("auth.emailAlreadyExists"),

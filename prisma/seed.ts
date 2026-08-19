@@ -1,8 +1,45 @@
 import { PrismaClient } from "@prisma/client"
+import bcrypt from "bcryptjs"
 
 const prisma = new PrismaClient()
 
+/**
+ * Demo accounts for local development. These are ordinary rows with real bcrypt
+ * hashes — the API treats them exactly like any other account.
+ */
+const DEMO_PASSWORD = "Password123!"
+
+const DEMO_USERS = [
+  { name: "Admin User", email: "admin@nexmart.local", role: "admin" },
+  { name: "Nour Hassan", email: "customer@nexmart.local", role: "user" },
+]
+
+async function seedUsers() {
+  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12)
+
+  for (const demo of DEMO_USERS) {
+    // Upsert so a second run does not fail on the unique email.
+    await prisma.user.upsert({
+      where: { email: demo.email },
+      update: {},
+      create: { ...demo, password: passwordHash },
+    })
+  }
+
+  console.log("Demo accounts (local development only):")
+  for (const demo of DEMO_USERS) {
+    console.log(`  ${demo.role.padEnd(5)} ${demo.email}  ${DEMO_PASSWORD}`)
+  }
+}
+
 async function main() {
+  await seedUsers()
+
+  // Products are replaced wholesale, so editing the list above and re-running
+  // gives a clean catalogue.
+  await prisma.orderItem.deleteMany()
+  await prisma.review.deleteMany()
+  await prisma.wishlist.deleteMany()
   await prisma.product.deleteMany()
 
   await prisma.product.createMany({
@@ -154,9 +191,13 @@ async function main() {
     ],
   })
 
-  console.log("✅ تم إضافة 12 منتج بنجاح!")
+  const productCount = await prisma.product.count()
+  console.log(`Seed complete: ${productCount} products.`)
 }
 
 main()
-  .catch(console.error)
+  .catch((error) => {
+    console.error("Seed failed:", error)
+    process.exit(1)
+  })
   .finally(() => prisma.$disconnect())

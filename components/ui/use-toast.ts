@@ -18,6 +18,9 @@ type ToasterToast = ToastProps & {
   action?: ToastActionElement
 }
 
+// The object is only read through `typeof actionTypes` to type the reducer's
+// actions, which the unused-vars rule cannot see.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
   UPDATE_TOAST: "UPDATE_TOAST",

@@ -64,67 +64,10 @@ export function OrderHistory({ userId }: OrderHistoryProps) {
     )
   }
 
-  // Sample orders if API returns empty
-  const displayOrders =
-    orders.length > 0
-      ? orders
-      : ([
-          {
-            id: "order-1",
-            userId: userId,
-            total: 349.98,
-            status: "delivered",
-            paymentMethod: "cash_on_delivery",
-            shippingDetails: {
-              fullName: "John Doe",
-              email: "john@example.com",
-              phone: "123-456-7890",
-              address: "123 Main St",
-              city: "Anytown",
-              state: "CA",
-              zipCode: "12345",
-              country: "USA",
-            },
-            items: [
-              {
-                productId: "1",
-                quantity: 1,
-                price: 299.99,
-              },
-              {
-                productId: "3",
-                quantity: 1,
-                price: 49.99,
-              },
-            ],
-            createdAt: "2023-06-15T10:30:00Z",
-          },
-          {
-            id: "order-2",
-            userId: userId,
-            total: 199.99,
-            status: "processing",
-            paymentMethod: "cash_on_delivery",
-            shippingDetails: {
-              fullName: "John Doe",
-              email: "john@example.com",
-              phone: "123-456-7890",
-              address: "123 Main St",
-              city: "Anytown",
-              state: "CA",
-              zipCode: "12345",
-              country: "USA",
-            },
-            items: [
-              {
-                productId: "2",
-                quantity: 1,
-                price: 199.99,
-              },
-            ],
-            createdAt: "2023-07-20T14:45:00Z",
-          },
-        ] as Order[])
+  // Orders come from the API and nowhere else. This used to substitute invented
+  // orders whenever the list came back empty, so a customer with no order history
+  // was shown purchases they never made.
+  const displayOrders = orders
 
   const getStatusBadge = (status: string) => {
     switch (status) {

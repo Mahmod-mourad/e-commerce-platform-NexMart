@@ -4,7 +4,7 @@ import { getAuthUser } from "@/lib/auth"
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
     const authUser = await getAuthUser(request)
@@ -13,7 +13,7 @@ export async function DELETE(
     }
 
     await prisma.wishlist.deleteMany({
-      where: { userId: authUser.userId, productId: params.productId },
+      where: { userId: authUser.userId, productId: (await params).productId },
     })
 
     return NextResponse.json({ success: true })

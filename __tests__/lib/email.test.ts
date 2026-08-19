@@ -1,18 +1,33 @@
 import { readFileSync } from "fs"
 import { join } from "path"
 
-const mockSendMail = jest.fn().mockResolvedValue({ messageId: "test-id" })
+// jest.mock is hoisted to the top of the file, above any const declaration, so
+// the factory has to create the mock itself rather than close over an outer one.
+jest.mock("nodemailer", () => {
+  const sendMail = jest.fn().mockResolvedValue({ messageId: "test-id" })
 
-jest.mock("nodemailer", () => ({
-  createTestAccount: jest.fn().mockResolvedValue({
-    user: "test@ethereal.email",
-    pass: "test-password",
-  }),
-  createTransport: jest.fn().mockReturnValue({
-    sendMail: mockSendMail,
-  }),
-  getTestMessageUrl: jest.fn().mockReturnValue("http://test-preview-url"),
-}))
+  return {
+    __esModule: true,
+    sendMail,
+    default: {
+      createTestAccount: jest.fn().mockResolvedValue({
+        user: "test@ethereal.email",
+        pass: "test-password",
+      }),
+      createTransport: jest.fn().mockReturnValue({ sendMail }),
+      getTestMessageUrl: jest.fn().mockReturnValue("http://test-preview-url"),
+    },
+    createTestAccount: jest.fn().mockResolvedValue({
+      user: "test@ethereal.email",
+      pass: "test-password",
+    }),
+    createTransport: jest.fn().mockReturnValue({ sendMail }),
+    getTestMessageUrl: jest.fn().mockReturnValue("http://test-preview-url"),
+  }
+})
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { sendMail: mockSendMail } = jest.requireMock("nodemailer")
 
 import { sendOrderConfirmation } from "@/lib/email"
 

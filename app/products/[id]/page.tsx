@@ -30,8 +30,10 @@ async function getRelatedProducts(category: string): Promise<Product[]> {
   }
 }
 
-export default async function ProductPage({ params }: { params: { id: string } }) {
-  const product = await getProductById(params.id)
+export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+  // Next 15 hands route params in as a promise.
+  const { id } = await params
+  const product = await getProductById(id)
 
   if (!product) {
     notFound()
@@ -42,7 +44,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
   return (
     <div className="container mx-auto px-4 py-8">
       <ProductDetails product={product} />
-      <ProductReviews productId={params.id} />
+      <ProductReviews productId={id} />
       <RelatedProducts products={relatedProducts} />
     </div>
   )

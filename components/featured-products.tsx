@@ -24,7 +24,7 @@ export function FeaturedProducts() {
       try {
         const response = await fetch("/api/products?featured=true")
         const data = await response.json()
-        setProducts(data.products)
+        setProducts(data.products ?? [])
       } catch (error) {
         console.error("Error fetching featured products:", error)
         setProducts([])

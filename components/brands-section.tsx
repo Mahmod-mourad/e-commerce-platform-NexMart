@@ -12,37 +12,37 @@ export function BrandsSection() {
     {
       id: "brand-1",
       name: "TechMaster",
-      image: "/placeholder.svg?height=100&width=100",
+      image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&q=80",
       category: "electronics",
     },
     {
       id: "brand-2",
       name: "FashionStyle",
-      image: "/placeholder.svg?height=100&width=100",
+      image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&q=80",
       category: "fashion",
     },
     {
       id: "brand-3",
       name: "HomeComfort",
-      image: "/placeholder.svg?height=100&width=100",
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&q=80",
       category: "home",
     },
     {
       id: "brand-4",
       name: "BeautyGlow",
-      image: "/placeholder.svg?height=100&width=100",
+      image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&q=80",
       category: "beauty",
     },
     {
       id: "brand-5",
       name: "BookWorm",
-      image: "/placeholder.svg?height=100&width=100",
+      image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&q=80",
       category: "books",
     },
     {
       id: "brand-6",
       name: "ToyJoy",
-      image: "/placeholder.svg?height=100&width=100",
+      image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&q=80",
       category: "toys",
     },
   ]

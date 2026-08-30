@@ -12,32 +12,32 @@ export function Categories() {
     {
       id: "electronics",
       name: t("categories.electronics"),
-      image: "/placeholder.svg?height=200&width=200",
+      image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&q=80",
     },
     {
       id: "fashion",
       name: t("categories.fashion"),
-      image: "/placeholder.svg?height=200&width=200",
+      image: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&q=80",
     },
     {
       id: "home",
       name: t("categories.home"),
-      image: "/placeholder.svg?height=200&width=200",
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&q=80",
     },
     {
       id: "beauty",
       name: t("categories.beauty"),
-      image: "/placeholder.svg?height=200&width=200",
+      image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&q=80",
     },
     {
       id: "books",
       name: t("categories.books"),
-      image: "/placeholder.svg?height=200&width=200",
+      image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&q=80",
     },
     {
       id: "toys",
       name: t("categories.toys"),
-      image: "/placeholder.svg?height=200&width=200",
+      image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&q=80",
     },
   ]
 

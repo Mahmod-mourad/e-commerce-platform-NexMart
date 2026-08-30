@@ -13,19 +13,19 @@ export function HeroSection() {
 
   const slides = [
     {
-      image: "/placeholder.svg?height=600&width=1200",
+      image: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=1200&q=80",
       title: t("hero.slide1.title"),
       description: t("hero.slide1.description"),
       link: "/products?category=electronics",
     },
     {
-      image: "/placeholder.svg?height=600&width=1200",
+      image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&q=80",
       title: t("hero.slide2.title"),
       description: t("hero.slide2.description"),
       link: "/products?category=fashion",
     },
     {
-      image: "/placeholder.svg?height=600&width=1200",
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&q=80",
       title: t("hero.slide3.title"),
       description: t("hero.slide3.description"),
       link: "/products?category=home",

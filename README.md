@@ -25,7 +25,27 @@ A fully-featured e-commerce web application inspired by Amazon, built with moder
 | Testing | Jest + React Testing Library |
 
 ---
+## Screenshots
 
+The storefront running against the seeded database — 32 products across 6 categories, with Arabic reviews and real checkout data.
+
+![Home page](docs/screenshots/home.png)
+
+*Home — hero, featured products, categories and deals.*
+
+![Product listing](docs/screenshots/products.png)
+
+*Product listing — search, filters, pagination and the category sidebar.*
+
+![Product detail](docs/screenshots/product-detail.png)
+
+*Product page — gallery, specs, reviews and related products.*
+
+![Cart](docs/screenshots/cart.png)
+
+*Cart — quantities, order summary and checkout.*
+
+---
 ## Features
 
 ### Storefront
@@ -279,27 +299,7 @@ NewsletterSubscriber — email (unique), subscribedAt
 
 ---
 
-## Screenshots
 
-The storefront running against the seeded database — 32 products across 6 categories, with Arabic reviews and real checkout data.
-
-![Home page](docs/screenshots/home.png)
-
-*Home — hero, featured products, categories and deals.*
-
-![Product listing](docs/screenshots/products.png)
-
-*Product listing — search, filters, pagination and the category sidebar.*
-
-![Product detail](docs/screenshots/product-detail.png)
-
-*Product page — gallery, specs, reviews and related products.*
-
-![Cart](docs/screenshots/cart.png)
-
-*Cart — quantities, order summary and checkout.*
-
----
 
 ## License
 

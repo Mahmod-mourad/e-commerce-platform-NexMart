@@ -2,6 +2,13 @@
 
 A fully-featured e-commerce web application inspired by Amazon, built with modern technologies and production-grade security practices.
 
+[![Live Demo](https://img.shields.io/badge/live-nexmart--iota.vercel.app-4f8cff?logo=vercel&logoColor=white)](https://nexmart-iota.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js&logoColor=white)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Prisma-336791?logo=postgresql&logoColor=white)](https://prisma.io)
+[![Stripe](https://img.shields.io/badge/payments-Stripe-635BFF?logo=stripe&logoColor=white)](https://stripe.com)
+[![Jest](https://img.shields.io/badge/tests-Jest-C21325?logo=jest&logoColor=white)](https://jestjs.io)
+
 ---
 
 ## Tech Stack
@@ -274,10 +281,23 @@ NewsletterSubscriber — email (unique), subscribedAt
 
 ## Screenshots
 
-<img width="2880" height="1740" alt="Home page" src="https://github.com/user-attachments/assets/58fc1446-0fa4-48e7-bd53-b97c046d6632" />
-<img width="2880" height="1740" alt="Product listing" src="https://github.com/user-attachments/assets/0ae9f32e-2667-44f6-a99e-f55803b56277" />
-<img width="2880" height="1740" alt="Product detail" src="https://github.com/user-attachments/assets/cb9c7c76-22bc-4b8a-aec4-e4c7410bf3c5" />
-<img width="2880" height="1740" alt="Cart" src="https://github.com/user-attachments/assets/cc06f538-7b59-418a-9d07-d0c8ed311320" />
+The storefront running against the seeded database — 32 products across 6 categories, with Arabic reviews and real checkout data.
+
+![Home page](docs/screenshots/home.png)
+
+*Home — hero, featured products, categories and deals.*
+
+![Product listing](docs/screenshots/products.png)
+
+*Product listing — search, filters, pagination and the category sidebar.*
+
+![Product detail](docs/screenshots/product-detail.png)
+
+*Product page — gallery, specs, reviews and related products.*
+
+![Cart](docs/screenshots/cart.png)
+
+*Cart — quantities, order summary and checkout.*
 
 ---
 
